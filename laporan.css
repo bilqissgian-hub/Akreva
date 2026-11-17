@@ -1,0 +1,31 @@
+.rp-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.rp-head h1{margin:0 auto 0 0;font-size:28px}
+.rp-head label{display:flex;align-items:center;gap:10px;margin:0;color:var(--muted);font-weight:700;font-size:17px}
+.rp-head select{width:auto;margin:0;padding:12px 16px;font-size:18px;font-weight:700;border-radius:10px}
+.rp-sec h3{font-size:23px}
+.rp-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.rp-btns{display:flex;gap:10px;flex-wrap:wrap}
+.vt{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.vt button{border:0;background:var(--card);color:var(--muted);padding:10px 20px;font-weight:700;font-size:17px;cursor:pointer}
+.vt button.on{background:#0284c7;color:#fff;border-radius:999px}
+.rp-x{border-radius:999px;padding:10px 22px;font-size:17px;font-weight:700;cursor:pointer}
+.rp-x.xl{background:#e6f9ee;color:#15803d;border:1px solid #a7e3bd}.rp-x.pd{background:#e6f3ff;color:#0369a1;border:1px solid #b6dcf7}
+.rp-chart{position:relative;height:420px;background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:18px}
+.rp-lg{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:14px;padding:14px 18px;background:var(--soft);border-radius:14px;font-weight:600}
+.rp-lg i{display:inline-block;width:18px;height:18px;border-radius:50%;margin-right:8px;vertical-align:-3px}
+.rp-tab table{width:100%}.rp-tab th{text-align:left;padding:14px;color:var(--muted);background:var(--soft)}.rp-tab td{padding:14px;border-top:1px solid var(--line)}
+.rp-tabs{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.rp-tabs button{border:1px solid var(--line);background:var(--soft);color:var(--muted);border-radius:999px;padding:10px 22px;font-weight:700;font-size:17px;cursor:pointer}
+.rp-tabs button.on{background:#0d9488;color:#fff;border-color:#0d9488}
+.rp-ind{display:flex;flex-wrap:wrap;gap:18px;align-items:center;background:#eaf6ff;border:1px solid #c9e6fb;border-radius:14px;padding:16px 20px;margin-bottom:18px;color:#1c1417}
+.rp-ind label{display:flex;align-items:center;gap:10px;margin:0;color:#1c1417;font-weight:700;font-size:17px}
+.rp-ind input{width:110px;margin:0;padding:10px 14px;font-size:18px;font-weight:700;border-radius:8px}#ind-sum{margin-left:auto}
+.rp-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:18px}
+.rp-card{border-radius:16px;padding:20px 22px;border:2px solid;border-left-width:6px;color:#1c1417}
+.rp-card h4{font-size:16px;letter-spacing:1px;text-transform:uppercase;margin:0 0 8px}
+.rp-card strong{display:block;font:700 36px "JetBrains Mono",ui-monospace,monospace}.rp-card small{display:block;font-weight:600;margin-top:6px}
+.pill{white-space:nowrap}.pill.lain,.pill.BPJS\/Asuransi{background:#dbe8ff;color:#1d4ed8}
+@media(max-width:1100px){.rp-cards{grid-template-columns:1fr 1fr}}
+/* Tengahkan keterangan di bawah grafik */
+.rp-lg { justify-content: center; text-align: center; }
+/* Grafik umur dan diagnosis dibuat lebih tinggi agar nama diagnosis muat */
+#s-um .rp-chart { height: 560px; }

@@ -1,0 +1,27 @@
+#page-laporan .stats{margin-bottom:20px}
+.geo-bar{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:18px}
+.geo-bar label{display:flex;align-items:center;gap:10px;margin:0;font-weight:700;font-size:17px}
+.geo-bar select{width:auto;margin:0;padding:12px 16px;font-size:18px;border-radius:10px;max-width:380px}
+#geoSum{margin-left:auto;font-weight:700;color:var(--muted)}
+.geo-leg{display:flex;align-items:center;gap:4px;font-size:15px;color:var(--text);font-weight:600}
+.geo-leg b{display:inline-block;width:16px;height:16px;border-radius:50%;margin-left:10px;border:2px solid #fff;box-shadow:0 0 0 1px #0003}
+.geo-wrap{display:grid;grid-template-columns:1fr 360px;gap:20px}
+#geoMap{height:640px;border-radius:20px;border:1px solid var(--line);position:relative;isolation:isolate}
+.geo-side{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;max-height:640px;overflow:auto}
+.geo-side h3{margin-bottom:10px;font-size:20px}
+.geo-row{padding:10px 8px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:8px}
+.geo-row:hover{background:var(--soft)}
+.geo-row div{display:flex;justify-content:space-between;font-size:17px}
+.geo-row i{display:block;height:8px;border-radius:99px;margin-top:6px}
+.geo-side details{margin-top:16px;font-size:15px;color:var(--muted)}.geo-side summary{cursor:pointer;font-weight:700}
+.geo-note{color:var(--muted);font-size:15px;margin-top:14px}
+#geoRec{margin-top:20px}
+.geo-rec-h{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.geo-rec-h h3{font-size:22px}
+.geo-rec{padding-left:26px}.geo-rec>li{margin-bottom:20px;font-size:17px;line-height:1.5}
+.geo-rec ul{margin:6px 0 0 20px}
+.geo-rec .dot{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:8px;vertical-align:-2px;border:2px solid #fff;box-shadow:0 0 0 1px #0003}
+@media(max-width:1100px){.geo-wrap{grid-template-columns:1fr}#geoMap{height:480px}}
+/* Kolom angka di tabel agregasi: rata tengah (kolom ke-2 sampai ke-7) */
+#geoTabBody th:nth-child(n+2):nth-child(-n+7),
+#geoTabBody td:nth-child(n+2):nth-child(-n+7){text-align:center}

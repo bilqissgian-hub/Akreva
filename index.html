@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Akreva - Audit Rekam Medis</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="extras.css" />
+  <link rel="stylesheet" href="laporan.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <link rel="stylesheet" href="beranda.css" />
+  <link rel="icon" href="gambar/logo-icon.png" />
+</head>
+<body>
+
+  <!-- ===== Ikon SVG ===== -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 21V9h5v12M9 21V3h6v18M15 21v-8h5v8M3 21h18"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  </svg>
+
+  <!-- ============ HEADER ============ -->
+  <header class="topbar">
+    <div class="brand">
+        <img src="gambar/logo-icon.png" alt="Logo Akreva" class="logo-img">
+        <span class="brand-name">AKREVA</span>
+    </div>
+    <span class="divider"></span>
+
+    <nav class="nav">
+      <a href="#" class="nav-link" data-page="beranda"><svg class="ico"><use href="#i-home"/></svg> Beranda</a>
+      <a href="#" class="nav-link active" data-page="audit"><svg class="ico"><use href="#i-file"/></svg> Audit Rekam Medis</a>
+      <a href="#" class="nav-link" data-page="laporan"><svg class="ico"><use href="#i-chart"/></svg> Laporan &amp; Analitik</a>
+    </nav>
+
+    <div class="topbar-right">
+      <div class="clock">
+        <small id="clockDate">Kam, 12 Nov 2026</small>
+        <strong id="clockTime">00:00:00</strong>
+      </div>
+      <button class="icon-btn" id="themeBtn" title="Mode gelap/terang">🌙</button>
+      <div class="notif-wrap">
+        <button class="icon-btn" id="notifBtn" title="Notifikasi"><svg class="ico"><use href="#i-bell"/></svg></button>
+        <span class="badge" id="notifBadge">3</span>
+        <div class="dropdown" id="notifMenu" hidden>
+          <p><b>Notifikasi</b></p>
+          <p>• Beberapa rekam medis belum lengkap</p>
+          <p>• Audit bulanan jatuh tempo</p>
+          <p>• Pengingat: kirim email ke DPJP</p>
+        </div>
+      </div>
+      <button class="icon-btn plain" id="settingBtn" title="Pengaturan"><svg class="ico"><use href="#i-gear"/></svg></button>
+      <button class="icon-btn plain sq" id="userBtn" title="Manajemen Pengguna"><svg class="ico"><use href="#i-user"/></svg></button>
+      <button class="user-pill"><svg class="ico sm"><use href="#i-user"/></svg> dr. Admin</button>
+    </div>
+  </header>
+
+  <!-- ============ HALAMAN AUDIT ============ -->
+  <main class="container" id="page-audit">
+    <h1>Audit Rekam Medis Pasien</h1>
+
+    <div class="chips">
+      <button class="chip chip-all active" data-filter="semua">Semua (<span id="cntAll">0</span>)</button>
+      <button class="chip chip-ok" data-filter="lengkap">Lengkap (<span id="cntOk">0</span>)</button>
+      <button class="chip chip-bad" data-filter="tidak">Tidak Lengkap (<span id="cntBad">0</span>)</button>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="Cari Nama Pasien atau No. RM..." />
+      <button class="btn btn-light" id="importBtn">Import CSV</button>
+      <input type="file" id="csvFile" accept=".csv" hidden />
+      <button class="btn btn-primary" id="addBtn">+ Tambah Pasien</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="Rawat Inap">Rawat Inap</button>
+      <button class="tab" data-tab="Rawat Jalan">Rawat Jalan</button>
+      <button class="tab" data-tab="IGD">IGD</button>
+    </div>
+
+    <div class="table-card">
+      <table class="ptable">
+        <thead>
+          <tr>
+            <th style="width:17%">Nama / RM</th>
+            <th style="width:30%">DPJP</th>
+            <th>Diagnosis</th>
+            <th style="width:90px">Jaminan</th>
+            <th style="width:250px">Status Kelengkapan</th>
+            <th style="width:60px"></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <p class="empty" id="emptyMsg" hidden>Tidak ada data pasien.</p>
+    </div>
+  </main>
+
+  <!-- ============ BERANDA ============ -->
+  <main class="container" id="page-beranda" hidden>
+    <h1>Beranda</h1>
+    <div class="stats">
+      <div class="stat-card"><span>Total Pasien</span><strong id="stTotal">0</strong></div>
+      <div class="stat-card"><span>Lengkap</span><strong id="stOk">0</strong></div>
+      <div class="stat-card"><span>Tidak Lengkap</span><strong id="stBad">0</strong></div>
+      <div class="stat-card"><span>Rata-rata Kelengkapan</span><strong id="stAvg">0%</strong></div>
+    </div>
+  </main>
+
+  <!-- ============ LAPORAN ============ -->
+  <main class="container" id="page-laporan" hidden>
+    <h1>Laporan &amp; Analitik</h1>
+    <div class="table-card pad">
+      <h3>Kelengkapan per Layanan</h3>
+      <div id="reportBars"></div>
+    </div>
+  </main>
+
+  <!-- ============ MANAJEMEN PENGGUNA ============ -->
+  <main class="container" id="page-pengguna" hidden>
+    <div class="utabs">
+      <button class="utab active" data-utab="pengguna">Manajemen Pengguna</button>
+      <button class="utab" data-utab="log">Log Aktivitas</button>
+    </div>
+
+    <section id="utab-pengguna">
+      <div class="ustats">
+        <div class="ustat"><strong id="uTotal" style="color:#7a0c2e">0</strong><span>Total</span></div>
+        <div class="ustat"><strong id="uAktif" style="color:#15803d">0</strong><span>Aktif</span></div>
+        <div class="ustat"><strong id="uDokter" style="color:#3d5a96">0</strong><span>Dokter</span></div>
+        <div class="ustat"><strong id="uCoder" style="color:#7c3aed">0</strong><span>Coder</span></div>
+        <div class="ustat"><strong id="uNon" style="color:#6b7280">0</strong><span>Nonaktif</span></div>
+      </div>
+
+      <div class="urow">
+        <div class="rchips">
+          <button class="rchip active" data-role="Semua">Semua</button>
+          <button class="rchip" data-role="Admin">Admin</button>
+          <button class="rchip" data-role="Dokter">Dokter</button>
+          <button class="rchip" data-role="Perawat">Perawat</button>
+          <button class="rchip" data-role="Coder">Coder</button>
+          <button class="rchip" data-role="Verifikator">Verifikator</button>
+        </div>
+        <div class="ubtns">
+          <button class="btn btn-steel" id="addDokterBtn">+ Tambah Dokter</button>
+          <button class="btn btn-primary" id="addUserBtn">+ Tambah Pengguna</button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <table class="utable">
+          <thead>
+            <tr><th>ID</th><th>Nama</th><th>Username</th><th>Departemen</th><th>Peran</th><th>Status</th><th>Login Terakhir</th><th>Aksi</th></tr>
+          </thead>
+          <tbody id="utbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="utab-log" hidden>
+      <div class="table-card" style="margin-top:28px">
+        <table class="utable">
+          <thead><tr><th>Waktu</th><th>Pengguna</th><th>Aksi</th><th>Detail</th></tr></thead>
+          <tbody id="logBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ MODAL TAMBAH / EDIT PASIEN ============ -->
+  <div class="overlay" id="modalPasien" hidden>
+    <div class="modal" id="pasienBox">
+      <h2 id="pasienTitle">Tambah Pasien</h2>
+      <p class="sub" id="pasienSub">Isi form di bawah untuk menambahkan data pasien</p>
+
+      <form id="formPasien" novalidate>
+        <div class="edit-grid">
+
+          <!-- KOLOM KIRI: DATA PASIEN -->
+          <div class="col" id="colForm">
+            <label>Nama Pasien *
+              <input type="text" id="fNama" placeholder="Contoh: Siti Rahayu" />
+              <small class="err" id="err-fNama"></small>
+            </label>
+
+            <label>NIK *
+              <input type="text" id="fNik" placeholder="Contoh: 3401014501900001" maxlength="16" inputmode="numeric" />
+              <small class="hint">16 digit angka</small>
+              <small class="err" id="err-fNik"></small>
+            </label>
+
+            <label>No. RM *
+              <input type="text" id="fRm" placeholder="Contoh: 123456" maxlength="6" inputmode="numeric" />
+              <small class="hint">6 digit angka</small>
+              <small class="err" id="err-fRm"></small>
+            </label>
+
+            <label>Tanggal Lahir *
+              <input type="date" id="fTgl" />
+              <small class="hint">Contoh: 15/01/1990</small>
+              <small class="err" id="err-fTgl"></small>
+            </label>
+
+            <label>Umur Pasien *
+              <input type="text" id="fUmur" placeholder="Terisi otomatis dari tanggal lahir" readonly />
+            </label>
+
+            <label>Jenis Kelamin *
+              <select id="fJk">
+                <option value="" disabled selected>Jenis Kelamin</option>
+                <option>Tidak diketahui</option>
+                <option>Laki-laki</option>
+                <option>Perempuan</option>
+                <option>Tidak dapat ditentukan</option>
+                <option>Tidak mengisi</option>
+              </select>
+              <small class="err" id="err-fJk"></small>
+            </label>
+
+            <label>Alamat *
+              <input type="text" id="fAlamat" placeholder="Contoh: Banguncipto, Sentolo, Kulon Progo" />
+              <small class="err" id="err-fAlamat"></small>
+            </label>
+
+            <label>Nama DPJP *
+              <select id="fDpjp"></select>
+              <small class="err" id="err-fDpjp"></small>
+            </label>
+
+            <label>Email DPJP *
+              <input type="text" id="fEmail" placeholder="Terisi otomatis setelah memilih DPJP" readonly />
+            </label>
+
+            <label>Diagnosis Utama*
+              <input type="text" id="fDiag" placeholder="Contoh: Partus Spontaneous Vertex" />
+              <small class="err" id="err-fDiag"></small>
+            </label>
+
+            <label>Kode ICD-10*
+              <input type="text" id="fIcd" placeholder="Contoh: O80.0" />
+              <small class="hint">isi sesuai kondisi pasien dan format ICD-10</small>
+              <small class="err" id="err-fIcd"></small>
+            </label>
+
+            <div id="grpTanggal" hidden>
+              <label>Tanggal Masuk *
+                <input type="date" id="fMasuk" />
+                <small class="hint">Format tanggal: dd/mm/yy.</small>
+                <small class="err" id="err-fMasuk"></small>
+              </label>
+              <label>Tanggal Keluar *
+                <input type="date" id="fKeluar" />
+                <small class="hint">Format tanggal: dd/mm/yy.</small>
+                <small class="err" id="err-fKeluar"></small>
+              </label>
+            </div>
+
+            <div class="pair">
+              <label>Ruang *
+                <select id="fRuang">
+                  <option value="" disabled selected>Ruang</option>
+                  <option>Rawat Inap</option>
+                  <option>Rawat Jalan</option>
+                  <option>IGD</option>
+                </select>
+                <small class="err" id="err-fRuang"></small>
+              </label>
+              <label>Jaminan *
+                <select id="fJaminan">
+                  <option value="" disabled selected>Jaminan</option>
+                  <option>BPJS/Asuransi lain</option>
+                  <option>Umum</option>
+                </select>
+                <small class="err" id="err-fJaminan"></small>
+              </label>
+            </div>
+
+            <div id="grpUpload">
+              <label>*Upload General Consent (PDF, maksimal 10 MB)
+                <input type="file" id="fConsent" accept="application/pdf,.pdf" />
+                <small class="err" id="err-fConsent"></small>
+              </label>
+              <small class="hint">*Seluruh file wajib diisi</small>
+            </div>
+          </div>
+
+          <!-- KOLOM KANAN: KELENGKAPAN BERKAS (hanya saat Edit) -->
+          <div class="col" id="colDocs" hidden>
+            <div class="docs-head">
+              <h3>Kelengkapan Berkas</h3>
+              <div class="progress-wrap">
+                <div class="progress"><i id="docBar" style="width:0%"></i></div>
+                <span class="pct" id="docPct">0%</span>
+              </div>
+            </div>
+            <p class="sub small">Wajib mengunggah berkas (PDF, maksimal 10 MB)</p>
+
+            <div id="docList"></div>
+            <input type="file" id="docFile" accept="application/pdf,.pdf" hidden />
+
+            <button type="button" class="btn-email" id="btnEmail">Kirim Email ke DPJP</button>
+
+            <hr class="sep" />
+            <h4>Riwayat Diagnosis</h4>
+            <div id="histList"></div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary big">Simpan</button>
+          <button type="button" class="btn btn-light big" id="cancelPasien">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ MODAL KONFIRMASI ============ -->
+  <div class="overlay" id="modalConfirm" hidden>
+    <div class="modal confirm">
+      <h2 id="cTitle">Hapus Data Pasien</h2>
+      <p class="cmsg" id="cMsg"></p>
+      <div class="modal-actions noline">
+        <button class="btn btn-danger big" id="cOk">Ya, Hapus</button>
+        <button class="btn btn-light big" id="cCancel">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL PENGGUNA ============ -->
+  <div class="overlay" id="modalUser" hidden>
+    <div class="modal small">
+      <h2 id="uTitle">Tambah Pengguna</h2>
+      <p class="sub" id="uSub">Isi data pengguna di bawah ini</p>
+      <form id="formUser" novalidate>
+        <div class="col">
+          <label>Nama Lengkap *
+            <input type="text" id="uNama" placeholder="Contoh: dr. Anisa Putri, SpOG" />
+            <small class="err" id="err-uNama"></small>
+          </label>
+          <label>Username *
+            <input type="text" id="uUsername" placeholder="Contoh: anisa.spog" />
+            <small class="err" id="err-uUsername"></small>
+          </label>
+          <label>Email *
+            <input type="text" id="uEmail" placeholder="Contoh: anisa@gmail.com" />
+            <small class="err" id="err-uEmail"></small>
+          </label>
+          <label>Departemen *
+            <input type="text" id="uDept" placeholder="Contoh: Kebidanan" />
+            <small class="err" id="err-uDept"></small>
+          </label>
+          <label id="grpPeran">Peran *
+            <select id="uPeran">
+              <option>Admin</option><option>Dokter</option><option>Perawat</option><option>Coder</option><option>Verifikator</option>
+            </select>
+          </label>
+          <label>Status *
+            <select id="uStatus"><option>Aktif</option><option>Nonaktif</option></select>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary big">Simpan</button>
+          <button type="button" class="btn btn-light big" id="cancelUser">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Menu titik tiga (posisi fixed agar tidak terpotong tabel) -->
+  <div class="menu" id="rowMenu" hidden>
+    <button data-act="edit">Edit</button>
+    <button data-act="hapus" class="danger">Hapus</button>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+  
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="sync.js"></script>
+  <script src="script.js"></script>
+  <script src="extras.js"></script>
+  <script src="laporan.js"></script>
+  <script src="usia.js"></script>
+  <script src="beranda.js"></script>
+  <script src="tabel_peta.js"></script>
+  <script src="kode_icd.js"></script>
+</body>
+</html>
